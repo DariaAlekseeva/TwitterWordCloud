@@ -14,7 +14,7 @@ setup_twitter_oauth(key, secret, access_token, access_secret)
 
 
 # Using "memoise" to automatically cache the results
-getTermMatrix <- memoise(function(value) {
+getTermMatrix <- function(value) {
   # Careful not to let just any name slip in here; a
   # malicious user could manipulate this value.
   
@@ -47,7 +47,7 @@ getTermMatrix <- memoise(function(value) {
   m = as.matrix(myDTM)
   
   sort(rowSums(m), decreasing = TRUE)
-})
+}
 
 ### server.R
 
