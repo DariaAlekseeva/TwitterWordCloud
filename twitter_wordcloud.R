@@ -4,6 +4,14 @@ library(tm)
 library(wordcloud)
 library(memoise)
 
+key = "VqrALeKB9ArAS3H1K9VhbXS0B"
+secret = "7G3Pq7vrSPt22q8c0uqwmJH6O7lCpnujivrAI3pn8tnIHenabI"
+access_token = "434021886-bzkbvRcbKOEPzWm4tzld4z1Pm9SnmLTJHHTrOwvs"
+access_secret = "zMvd5JY8F6ahHieVncoruFvSWU5JLO4jpOVNbT0liADTW"
+
+# set up direct authentication
+setup_twitter_oauth(key, secret, access_token, access_secret)
+
 
 # Using "memoise" to automatically cache the results
 getTermMatrix <- memoise(function(value) {
@@ -51,7 +59,7 @@ server <- function(input, output, session) {
     # ...but not for anything else
     isolate({
       withProgress({
-        setProgress(message = "Processing 2000 tweets takes some time...")
+        setProgress(message = "Processing 1000 latest tweets")
         getTermMatrix(input$selection)
       })
     })
@@ -62,7 +70,7 @@ server <- function(input, output, session) {
   
   output$plot <- renderPlot({
     v <- terms()
-    wordcloud_rep(names(v), v, scale=c(8,1),
+    wordcloud_rep(names(v), v, scale=c(input$scalemax,input$scalemin),
                   min.freq = input$freq, max.words=input$max,
                   colors=brewer.pal(8, "Set2"), random.order = FALSE)
   })
@@ -71,23 +79,29 @@ server <- function(input, output, session) {
 
 ## ui.R
 
-ui <- fluidPage(theme = "http://185.137.92.115:8080/bootstrap.css",
+ui <- fluidPage(theme = "http://bootswatch.com/slate/bootstrap.css",
     # Application title
   titlePanel("Shiny Twitter Word Cloud"),
   
   sidebarLayout(
     # Sidebar with a slider and selection inputs
     sidebarPanel(
-      textInput("selection", "Enter your hashtag...",
+      textInput("selection", "Enter a hashtag...",
                 value = "#russia"),
       actionButton("update", "Change"),
       hr(),
       sliderInput("freq",
                   "Minimum Frequency:",
-                  min = 1,  max = 50, value = 15),
+                  min = 1,  max = 50, value = 5),
       sliderInput("max",
                   "Maximum Number of Words:",
-                  min = 1,  max = 300,  value = 100)
+                  min = 1,  max = 300,  value = 100),
+      sliderInput("scalemin",
+                  "Minimum value in scaler:",
+                  min = 0.2,  max = 1,  value = 1),
+      sliderInput("scalemax",
+                  "Maximum value in scaler:",
+                  min = 2,  max = 20,  value = 4)
     ),
     
     # Show Word Cloud
